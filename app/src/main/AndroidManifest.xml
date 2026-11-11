@@ -37,6 +37,11 @@
         tools:targetApi="tiramisu">
 
         <activity
+            android:name=".jc.LicenseActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".ui.activities.NoInternetActivity"
             android:label="@string/noInternet"
             android:launchMode="singleTop"
