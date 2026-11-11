@@ -8,6 +8,9 @@ on:
       - "app/**"
       - ".github/workflows/ci.yml"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,11 +24,145 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
+      # Name, icon and settings of the TubePlus edition are applied here, on top of the source code.
+      - name: Customize
+        run: |
+          python3 - <<'PY'
+          import re, pathlib
+
+          APP_NAME = "TubePlus"
+          APP_ID = "com.jcpanel.tubeplus"
+          root = pathlib.Path(".")
+
+          def edit(path, fn):
+              p = root / path
+              old = p.read_text(encoding="utf-8")
+              new = fn(old)
+              assert new != old, f"no change made in {path}"
+              p.write_text(new, encoding="utf-8")
+
+          # 1. application id and name
+          def gradle(s):
+              s = s.replace('applicationId = "com.github.libretube"', f'applicationId = "{APP_ID}"')
+              s = s.replace('resValue("string", "app_name", "LibreTube")', f'resValue("string", "app_name", "{APP_NAME}")')
+              s = s.replace('resValue("string", "app_name", "LibreTube Debug")', f'resValue("string", "app_name", "{APP_NAME} Debug")')
+              return s
+          edit("app/build.gradle.kts", gradle)
+
+          # 2. title shown in the top bar
+          edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt",
+               lambda s: s.replace("\"Libre<span  style='color:$hexColor';>Tube</span>\"",
+                                   "\"Tube<span  style='color:$hexColor';>Plus</span>\""))
+
+          # 3. app name inside the translated texts (the LibreTube sync server keeps its real name)
+          count = 0
+          for f in sorted((root / "app/src/main/res").glob("values*/strings.xml")):
+              lines = f.read_text(encoding="utf-8").split("\n")
+              out = []
+              for line in lines:
+                  if "LibreTube" in line and "sync" not in line.split(">")[0] and 'name="app_name"' not in line:
+                      line = re.sub(r"(?<![/\w.-])LibreTube(?![\w/-]|\.\w)", APP_NAME, line)
+                      count += 1
+                  out.append(line)
+              f.write_text("\n".join(out), encoding="utf-8")
+          assert count > 0
+          print("strings updated:", count)
+
+          # 4. launcher icon
+          res = root / "app/src/main/res"
+          (res / "drawable/jc_icon_foreground.xml").write_text('''<?xml version="1.0" encoding="utf-8"?>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:aapt="http://schemas.android.com/aapt"
+              android:width="108dp"
+              android:height="108dp"
+              android:viewportWidth="108"
+              android:viewportHeight="108">
+              <path
+                  android:fillType="evenOdd"
+                  android:pathData="M54,28 A26,26 0 1,1 54,80 A26,26 0 1,1 54,28 Z M54,34 A20,20 0 1,0 54,74 A20,20 0 1,0 54,34 Z">
+                  <aapt:attr name="android:fillColor">
+                      <gradient
+                          android:type="linear"
+                          android:startX="32"
+                          android:startY="32"
+                          android:endX="76"
+                          android:endY="76"
+                          android:startColor="#3B82F6"
+                          android:endColor="#EF4444" />
+                  </aapt:attr>
+              </path>
+              <path
+                  android:fillColor="#FFFFFF"
+                  android:pathData="M48,43 L48,65 L66,54 Z" />
+          </vector>
+          ''', encoding="utf-8")
+          (res / "values/jc_icon_colors.xml").write_text('''<?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <color name="jc_icon_background">#0B1220</color>
+          </resources>
+          ''', encoding="utf-8")
+          icon = '''<?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@color/jc_icon_background" />
+              <foreground android:drawable="@drawable/jc_icon_foreground" />
+          </adaptive-icon>
+          '''
+          for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
+              (res / "mipmap-anydpi-v26" / name).write_text(icon, encoding="utf-8")
+
+          # 5. no update check against the upstream project
+          edit("app/src/main/java/com/github/libretube/ui/preferences/MainSettings.kt",
+               lambda s: s.replace("UpdateChecker(requireContext()).checkUpdate(true)", "Unit"))
+          edit("app/src/main/res/xml/settings.xml",
+               lambda s: s.replace('app:title="@string/update_summary"', 'app:title="@string/app_name"'))
+          edit("app/src/main/res/xml/general_settings.xml",
+               lambda s: re.sub(r'\s*<SwitchPreferenceCompat(?:(?!/>).)*?app:key="automatic_update_checks"(?:(?!/>).)*?/>', "", s, flags=re.S))
+
+          print("customization done")
+          PY
+
+      - name: Prepare signing key
+        env:
+          JC_KEYSTORE: ${{ secrets.JC_KEYSTORE }}
+        run: |
+          if [ -z "$JC_KEYSTORE" ]; then
+            echo "::error::Le secret JC_KEYSTORE est absent (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          echo "$JC_KEYSTORE" | tr -d ' \n\r' | base64 -d > "$RUNNER_TEMP/tubeplus.keystore"
+          cat > keystore.properties <<EOF
+          storeFile=$RUNNER_TEMP/tubeplus.keystore
+          storePassword=tubeplus-jc-2026
+          keyAlias=tubeplus
+          keyPassword=tubeplus-jc-2026
+          EOF
+
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
+
+      - name: Collect APK
+        run: |
+          ls -la app/build/outputs/apk/release/
+          test -f app/build/outputs/apk/release/app-release.apk
+          cp app/build/outputs/apk/release/app-release.apk tubeplus.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: jc-app
-          path: app/build/outputs/apk/debug/*.apk
+          name: tubeplus
+          path: tubeplus.apk
+
+      # Publishes the APK at a fixed address:
+      # https://github.com/<owner>/<repo>/releases/latest/download/tubeplus.apk
+      - name: Publish download link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          sleep 5
+          gh release create latest tubeplus.apk \
+            --title "TubePlus - version ${{ github.run_number }}" \
+            --notes "Version ${{ github.run_number }}" \
+            --target "${{ github.sha }}" \
+            --latest
