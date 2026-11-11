@@ -110,6 +110,9 @@ class MainActivity : AbstractPlayerHostActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        // access code check: opens the activation screen when no valid code is stored
+        if (!com.github.libretube.jc.LicenseManager.guard(this)) return
+
         // show welcome activity on first app startup (or after the update to prospectively v32)
         if (!PreferenceHelper.getBoolean(PreferenceKeys.WELCOME_ACTIVITY_FINISHED, false)) {
             val welcomeIntent = Intent(this, WelcomeActivity::class.java)
