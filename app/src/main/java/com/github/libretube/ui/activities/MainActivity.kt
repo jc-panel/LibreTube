@@ -361,6 +361,12 @@ class MainActivity : AbstractPlayerHostActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.action_bar, menu)
 
+        // entry showing the access code and its expiry date
+        menu.add(Menu.NONE, Menu.NONE, 999, "Mon abonnement").setOnMenuItemClickListener {
+            com.github.libretube.jc.LicenseManager.showInfo(this)
+            true
+        }
+
         // stuff for the search in the topBar
         val searchItem = menu.findItem(R.id.action_search)
         this.searchItem = searchItem

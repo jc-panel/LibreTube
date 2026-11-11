@@ -4,12 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.UUID
@@ -28,6 +31,8 @@ object LicenseManager {
     private const val KEY_CODE = "code"
     private const val KEY_EXPIRES = "expires"
     private const val KEY_DEVICE = "device"
+    private const val DAY_MS = 24L * 60 * 60 * 1000
+    private const val WARNING_DAYS = 30
 
     sealed class Result {
         data class Valid(val expiresAt: Long, val daysLeft: Int) : Result()
@@ -126,6 +131,41 @@ object LicenseManager {
         else -> "Code refusé."
     }
 
+    /** Number of days left before the stored expiry date (0 when expired). */
+    fun daysLeft(context: Context): Int {
+        val remaining = storedExpiry(context) - System.currentTimeMillis()
+        if (remaining <= 0) return 0
+        return ((remaining + DAY_MS - 1) / DAY_MS).toInt()
+    }
+
+    fun formattedExpiry(context: Context): String {
+        return SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE).format(Date(storedExpiry(context)))
+    }
+
+    /** Dialog showing the access code, its expiry date and the days left. */
+    fun showInfo(activity: AppCompatActivity) {
+        val message = "Code : " + storedCode(activity).orEmpty() +
+            "\nValable jusqu'au : " + formattedExpiry(activity) +
+            "\nJours restants : " + daysLeft(activity)
+
+        MaterialAlertDialogBuilder(activity)
+            .setTitle("Mon abonnement")
+            .setMessage(message)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    private fun warnIfExpiringSoon(activity: AppCompatActivity) {
+        val days = daysLeft(activity)
+        if (days in 1..WARNING_DAYS) {
+            Toast.makeText(
+                activity,
+                "Votre accès expire dans $days jour(s), le " + formattedExpiry(activity),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     private fun openLicenseScreen(activity: AppCompatActivity) {
         activity.startActivity(Intent(activity, LicenseActivity::class.java))
         activity.finish()
@@ -146,7 +186,10 @@ object LicenseManager {
         activity.lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) { check(activity, code) }
             when (result) {
-                is Result.Valid -> save(activity, code, result.expiresAt)
+                is Result.Valid -> {
+                    save(activity, code, result.expiresAt)
+                    if (!activity.isFinishing) warnIfExpiringSoon(activity)
+                }
                 is Result.Invalid -> {
                     clear(activity)
                     if (!activity.isFinishing) openLicenseScreen(activity)
