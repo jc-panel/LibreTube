@@ -31,8 +31,13 @@ object LicenseManager {
     private const val KEY_CODE = "code"
     private const val KEY_EXPIRES = "expires"
     private const val KEY_DEVICE = "device"
+    private const val KEY_LAST_OK = "last_ok"
     private const val DAY_MS = 24L * 60 * 60 * 1000
     private const val WARNING_DAYS = 30
+
+    // The app must reach the panel at least once within this many days,
+    // otherwise it locks again (prevents staying offline forever to freeze an access).
+    private const val OFFLINE_GRACE_DAYS = 7
 
     sealed class Result {
         data class Valid(val expiresAt: Long, val daysLeft: Int) : Result()
@@ -54,11 +59,25 @@ object LicenseManager {
     }
 
     fun save(context: Context, code: String, expiresAt: Long) {
-        prefs(context).edit().putString(KEY_CODE, code).putLong(KEY_EXPIRES, expiresAt).apply()
+        prefs(context).edit()
+            .putString(KEY_CODE, code)
+            .putLong(KEY_EXPIRES, expiresAt)
+            .putLong(KEY_LAST_OK, System.currentTimeMillis())
+            .apply()
     }
 
     fun clear(context: Context) {
-        prefs(context).edit().remove(KEY_CODE).remove(KEY_EXPIRES).apply()
+        prefs(context).edit()
+            .remove(KEY_CODE)
+            .remove(KEY_EXPIRES)
+            .remove(KEY_LAST_OK)
+            .apply()
+    }
+
+    /** True when the panel hasn't been reached within the allowed offline window. */
+    private fun graceExpired(context: Context): Boolean {
+        val lastOk = prefs(context).getLong(KEY_LAST_OK, 0L)
+        return System.currentTimeMillis() - lastOk > OFFLINE_GRACE_DAYS * DAY_MS
     }
 
     @SuppressLint("HardwareIds")
@@ -194,7 +213,13 @@ object LicenseManager {
                     clear(activity)
                     if (!activity.isFinishing) openLicenseScreen(activity)
                 }
-                Result.NetworkError -> Unit // offline: keep the last known expiry date
+                Result.NetworkError -> {
+                    // offline: keep access, unless the panel hasn't been reached for too long
+                    if (graceExpired(activity) && !activity.isFinishing) {
+                        clear(activity)
+                        openLicenseScreen(activity)
+                    }
+                }
             }
         }
         return true
