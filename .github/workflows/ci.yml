@@ -47,7 +47,7 @@ jobs:
           #   Couleurs      17 18 20     (barres rouges, textes blancs)
           # Audit : les 26 points de controle passent (voir historique chat).
           # ============================================================
-          APP_NAME = "TubePlus"
+          APP_NAME = "DarkTube"
           APP_ID = "com.jcpanel.tubeplus"
           root = pathlib.Path(".")
 
@@ -69,7 +69,7 @@ jobs:
           # 2. title shown in the top bar
           edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt",
                lambda s: s.replace("\"Libre<span  style='color:$hexColor';>Tube</span>\"",
-                                   "\"Tube<span  style='color:$hexColor';>Plus</span>\""))
+                                   "\"Dark<span  style='color:$hexColor';>Tube</span>\""))
 
           # 3. app name inside the translated texts (the LibreTube sync server keeps its real name)
           count = 0
@@ -85,18 +85,24 @@ jobs:
           assert count > 0
           print("strings updated:", count)
 
-          # 4. launcher icon = bouton sur fond blanc INTEGRE (icone classique, fond blanc garanti)
-          from PIL import Image
+          # 4. icone DarkTube : carre rouge arrondi + triangle play noir (option 2)
+          from PIL import Image, ImageDraw
           res = root / "app/src/main/res"
-          legacy = Image.open(root / "jc_legacy.png").convert("RGBA")
-          fg = Image.open(root / "jc_fg.png").convert("RGBA")
+          def _make_icon(size):
+              S = 512
+              im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+              dr = ImageDraw.Draw(im)
+              dr.rounded_rectangle([0, 0, S - 1, S - 1], radius=115, fill=(230, 0, 0, 255))
+              dr.polygon([(200, 160), (200, 352), (360, 256)], fill=(10, 10, 10, 255))
+              return im.resize((size, size), Image.LANCZOS)
           for name, size in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
               folder = res / ("mipmap-" + name)
               folder.mkdir(parents=True, exist_ok=True)
-              legacy.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher.png")
-              legacy.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher_round.png")
-              fg.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher_foreground.png")
-          # retirer l'icone adaptative pour forcer l'image classique (fond blanc visible)
+              ic = _make_icon(size)
+              ic.save(folder / "ic_launcher.png")
+              ic.save(folder / "ic_launcher_round.png")
+              ic.save(folder / "ic_launcher_foreground.png")
+          # retirer l'icone adaptative pour forcer l'image classique
           for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
               p = res / "mipmap-anydpi-v26" / name
               if p.exists():
@@ -307,7 +313,7 @@ jobs:
           gh release delete latest --yes --cleanup-tag || true
           sleep 5
           gh release create latest tubeplus.apk version.txt \
-            --title "TubePlus - version ${{ github.run_number }}" \
+            --title "DarkTube - version ${{ github.run_number }}" \
             --notes "Version ${{ github.run_number }}" \
             --target "${{ github.sha }}" \
             --latest
