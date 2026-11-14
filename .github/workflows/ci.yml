@@ -253,6 +253,14 @@ jobs:
               'android:id="@+id/downloads"',
               'android:id="@+id/downloads"\n                        android:textColor="#FFFFFF"\n                        app:iconTint="#FFFFFF"', 1))
 
+          # 21. plein ecran automatique a la rotation du telephone (comme YouTube), active par defaut
+          edit("app/src/main/java/com/github/libretube/helpers/PlayerHelper.kt", lambda s: s.replace(
+              "PreferenceKeys.AUTO_FULLSCREEN,\n            false",
+              "PreferenceKeys.AUTO_FULLSCREEN,\n            true", 1))
+          edit("app/src/main/res/xml/player_settings.xml", lambda s: s.replace(
+              'app:defaultValue="false"\n            app:key="auto_fullscreen"',
+              'app:defaultValue="true"\n            app:key="auto_fullscreen"', 1))
+
           print("customization done")
           PY
 
