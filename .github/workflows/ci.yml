@@ -110,6 +110,31 @@ jobs:
                    "binding.toolbar.title = ThemeHelper.getStyledAppName(this)",
                    "binding.toolbar.title = null\n        binding.toolbar.logo = androidx.core.content.ContextCompat.getDrawable(this, com.github.libretube.R.mipmap.ic_launcher_foreground)"))
 
+          # 9. mise a jour integree (comme la TV) : popup Installer au demarrage
+          import os as _os
+          JC_BUILD = _os.environ.get("GITHUB_RUN_NUMBER", "0")
+          jc_dir = root / "app/src/main/java/com/github/libretube/jc"
+          jc_dir.mkdir(parents=True, exist_ok=True)
+          (jc_dir / "JcFileProvider.kt").write_text((root / "jc/JcFileProvider.kt").read_text(encoding="utf-8"), encoding="utf-8")
+          (jc_dir / "JcUpdater.kt").write_text((root / "jc/JcUpdater.kt").read_text(encoding="utf-8").replace("__BUILD__", JC_BUILD), encoding="utf-8")
+          (res / "xml").mkdir(parents=True, exist_ok=True)
+          (res / "xml/jc_file_paths.xml").write_text((root / "jc/jc_file_paths.xml").read_text(encoding="utf-8"), encoding="utf-8")
+          edit("app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt",
+               lambda s: s.replace("setContentView(binding.root)", "setContentView(binding.root)\n        com.github.libretube.jc.JcUpdater.check(this)", 1))
+          def _manifest(s):
+              if "REQUEST_INSTALL_PACKAGES" not in s:
+                  s = s.replace("<application", '<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n\n    <application', 1)
+              prov = ('        <provider\n'
+                      '            android:name="com.github.libretube.jc.JcFileProvider"\n'
+                      '            android:authorities="${applicationId}.jcfileprovider"\n'
+                      '            android:exported="false"\n'
+                      '            android:grantUriPermissions="true">\n'
+                      '            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/jc_file_paths" />\n'
+                      '        </provider>\n    ')
+              s = s.replace("</application>", prov + "</application>", 1)
+              return s
+          edit("app/src/main/AndroidManifest.xml", _manifest)
+
           print("customization done")
           PY
 
@@ -137,6 +162,7 @@ jobs:
           ls -la app/build/outputs/apk/release/
           test -f app/build/outputs/apk/release/app-release.apk
           cp app/build/outputs/apk/release/app-release.apk tubeplus.apk
+          echo "${{ github.run_number }}" > version.txt
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
@@ -153,7 +179,7 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           sleep 5
-          gh release create latest tubeplus.apk \
+          gh release create latest tubeplus.apk version.txt \
             --title "TubePlus - version ${{ github.run_number }}" \
             --notes "Version ${{ github.run_number }}" \
             --target "${{ github.sha }}" \

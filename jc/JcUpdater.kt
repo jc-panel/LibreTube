@@ -1,0 +1,69 @@
+package com.github.libretube.jc
+
+import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
+
+object JcUpdater {
+    const val BUILD = __BUILD__
+    private const val VERSION_URL = "https://github.com/jc-panel/LibreTube/releases/latest/download/version.txt"
+    private const val APK_URL = "https://github.com/jc-panel/LibreTube/releases/latest/download/tubeplus.apk"
+
+    fun check(activity: Activity) {
+        thread {
+            val latest = try {
+                val c = URL(VERSION_URL).openConnection() as HttpURLConnection
+                c.connectTimeout = 6000
+                c.readTimeout = 6000
+                val line = c.inputStream.bufferedReader().use { it.readLine() }
+                c.disconnect()
+                line?.trim()?.toIntOrNull() ?: -1
+            } catch (e: Exception) {
+                -1
+            }
+            if (latest > BUILD) {
+                activity.runOnUiThread { if (!activity.isFinishing) prompt(activity) }
+            }
+        }
+    }
+
+    private fun prompt(activity: Activity) {
+        AlertDialog.Builder(activity)
+            .setTitle("Nouvelle version disponible")
+            .setMessage("Une mise a jour de TubePlus est prete. L'installer maintenant ?")
+            .setPositiveButton("Installer") { _, _ -> download(activity) }
+            .setNegativeButton("Plus tard", null)
+            .show()
+    }
+
+    private fun download(activity: Activity) {
+        Toast.makeText(activity, "Telechargement...", Toast.LENGTH_SHORT).show()
+        thread {
+            try {
+                val dir = activity.externalCacheDir ?: activity.cacheDir
+                val out = File(dir, "update.apk")
+                val c = URL(APK_URL).openConnection() as HttpURLConnection
+                c.instanceFollowRedirects = true
+                c.connectTimeout = 15000
+                c.readTimeout = 60000
+                c.inputStream.use { inp -> out.outputStream.use { inp.copyTo(it) } }
+                c.disconnect()
+                val uri = FileProvider.getUriForFile(activity, activity.packageName + ".jcfileprovider", out)
+                val i = Intent(Intent.ACTION_VIEW)
+                i.setDataAndType(uri, "application/vnd.android.package-archive")
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                activity.startActivity(i)
+            } catch (e: Exception) {
+                activity.runOnUiThread {
+                    Toast.makeText(activity, "Mise a jour impossible.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+}
