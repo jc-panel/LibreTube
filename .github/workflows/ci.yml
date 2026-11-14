@@ -85,22 +85,17 @@ jobs:
           assert count > 0
           print("strings updated:", count)
 
-          # 4. icone DarkTube : tuile noire + triangle play en contour rouge (option B, moderne)
+          # 4. icone DarkTube : tuile noire + cadre rouge visible + triangle play plein rouge
           from PIL import Image, ImageDraw
           res = root / "app/src/main/res"
           def _make_icon(size):
               S = 512
               im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
               dr = ImageDraw.Draw(im)
-              dr.rounded_rectangle([0, 0, S - 1, S - 1], radius=115, fill=(18, 18, 18, 255))
-              red = (255, 32, 32, 255); w = 36; r = w // 2
-              pts = [(205, 155), (205, 357), (372, 256)]
-              for a, b in [(pts[0], pts[1]), (pts[1], pts[2]), (pts[2], pts[0])]:
-                  dr.line([a, b], fill=red, width=w)
-              for (x, y) in pts:
-                  dr.ellipse([x - r, y - r, x + r, y + r], fill=red)
-              inner = [(205 + w, int(155 + w * 1.1)), (205 + w, int(357 - w * 1.1)), (int(372 - w * 1.7), 256)]
-              dr.polygon(inner, fill=(18, 18, 18, 255))
+              red = (235, 20, 25, 255)
+              dr.rounded_rectangle([0, 0, S - 1, S - 1], radius=120, fill=(18, 18, 18, 255))
+              dr.rounded_rectangle([34, 34, S - 35, S - 35], radius=92, outline=red, width=22)
+              dr.polygon([(200, 162), (200, 350), (360, 256)], fill=red)
               return im.resize((size, size), Image.LANCZOS)
           for name, size in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
               folder = res / ("mipmap-" + name)
