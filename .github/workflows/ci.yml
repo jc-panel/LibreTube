@@ -397,6 +397,11 @@ jobs:
               "super.onViewCreated(view, savedInstanceState)\n\n        binding.bookmarksRV.layoutManager",
               "super.onViewCreated(view, savedInstanceState)\n\n" + _jc_cat_block + "\n        binding.bookmarksRV.layoutManager", 1))
 
+          # 29. rendre le "...plus" cliquable (il est dans la ligne des vues, pas dans la zone titre)
+          edit("app/src/main/java/com/github/libretube/ui/views/DescriptionLayout.kt", lambda s: s.replace(
+              "        binding.playerTitleLayout.setOnClickListener {\n            toggleDescription()\n        }",
+              "        binding.playerTitleLayout.setOnClickListener {\n            toggleDescription()\n        }\n        binding.playerViewsInfo.setOnClickListener {\n            toggleDescription()\n        }", 1))
+
           print("customization done")
           PY
 
