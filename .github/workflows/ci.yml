@@ -202,6 +202,11 @@ jobs:
               "        binding.relPlayerSave.setOnClickListener {",
               "        binding.playerScrollView.isNestedScrollingEnabled = false\n        binding.relPlayerSave.setOnClickListener {", 1))
 
+          # 15. clic sur un lien de description : garder la video en PiP (ouvrir le navigateur dans une tache separee)
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt", lambda s: s.replace(
+              "val intent = Intent(Intent.ACTION_VIEW, uri)\n\n            // start PiP mode if enabled",
+              "val intent = Intent(Intent.ACTION_VIEW, uri)\n                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)\n\n            // start PiP mode if enabled", 1))
+
           print("customization done")
           PY
 
