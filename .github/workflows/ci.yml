@@ -365,38 +365,6 @@ jobs:
               '    app:trackTint="@color/jc_switch_track"\n'
               '    tools:targetApi="n" />\n', encoding="utf-8")
 
-          # 28. barre de categories en haut de l'accueil (chaque puce lance une recherche du theme)
-          edit("app/src/main/res/layout/fragment_home.xml", lambda s: s.replace(
-              'android:orientation="vertical"\n                android:paddingBottom="10dp">',
-              'android:orientation="vertical"\n                android:paddingBottom="10dp">\n\n                <HorizontalScrollView\n                    android:id="@+id/jc_categories_scroll"\n                    android:layout_width="match_parent"\n                    android:layout_height="wrap_content"\n                    android:scrollbars="none"\n                    android:overScrollMode="never"\n                    android:paddingHorizontal="12dp"\n                    android:paddingVertical="8dp">\n\n                    <LinearLayout\n                        android:id="@+id/jc_categories"\n                        android:layout_width="wrap_content"\n                        android:layout_height="wrap_content"\n                        android:orientation="horizontal" />\n\n                </HorizontalScrollView>', 1))
-          _jc_cat_block = (
-              "        val jcCats = listOf(\n"
-              "            \"Tous\" to null,\n"
-              "            \"Musique\" to \"musique\",\n"
-              "            \"Jeux vidéo\" to \"jeux vidéo\",\n"
-              "            \"Actualités\" to \"actualités\",\n"
-              "            \"Sport\" to \"sport\",\n"
-              "            \"Films\" to \"films\",\n"
-              "            \"Tech\" to \"tech\",\n"
-              "            \"Humour\" to \"humour\",\n"
-              "            \"Cuisine\" to \"cuisine\"\n"
-              "        )\n"
-              "        for ((jcLabel, jcQuery) in jcCats) {\n"
-              "            val jcChip = com.google.android.material.chip.Chip(requireContext())\n"
-              "            jcChip.text = jcLabel\n"
-              "            jcChip.isCheckable = false\n"
-              "            val jcLp = android.view.ViewGroup.MarginLayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)\n"
-              "            jcLp.marginEnd = (8 * resources.displayMetrics.density).toInt()\n"
-              "            jcChip.layoutParams = jcLp\n"
-              "            jcChip.setOnClickListener {\n"
-              "                if (jcQuery != null) findNavController().navigate(com.github.libretube.NavDirections.showSearchResults(jcQuery))\n"
-              "            }\n"
-              "            binding.jcCategories.addView(jcChip)\n"
-              "        }\n")
-          edit("app/src/main/java/com/github/libretube/ui/fragments/HomeFragment.kt", lambda s: s.replace(
-              "super.onViewCreated(view, savedInstanceState)\n\n        binding.bookmarksRV.layoutManager",
-              "super.onViewCreated(view, savedInstanceState)\n\n" + _jc_cat_block + "\n        binding.bookmarksRV.layoutManager", 1))
-
           print("customization done")
           PY
 
