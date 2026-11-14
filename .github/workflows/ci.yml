@@ -340,6 +340,28 @@ jobs:
               "        binding.playerMotionLayout.progress = 1F\n        binding.playerMotionLayout.transitionToStart()",
               "        binding.playerMotionLayout.progress = 1F\n        binding.playerMotionLayout.post { binding.playerMotionLayout.transitionToStart() }", 1))
 
+          # 27. interrupteurs des reglages : vert quand actives (sinon invisibles en monochrome)
+          (res / "color").mkdir(parents=True, exist_ok=True)
+          (res / "color/jc_switch_thumb.xml").write_text(
+              '<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '    <item android:color="#FFFFFF" android:state_checked="true" />\n'
+              '    <item android:color="#BDBDBD" />\n</selector>\n', encoding="utf-8")
+          (res / "color/jc_switch_track.xml").write_text(
+              '<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n'
+              '    <item android:color="#43A047" android:state_checked="true" />\n'
+              '    <item android:color="#424242" />\n</selector>\n', encoding="utf-8")
+          (res / "layout/view_preference_switch.xml").write_text(
+              '<?xml version="1.0" encoding="utf-8"?>\n'
+              '<com.google.android.material.materialswitch.MaterialSwitch xmlns:android="http://schemas.android.com/apk/res/android"\n'
+              '    xmlns:app="http://schemas.android.com/apk/res-auto"\n'
+              '    xmlns:tools="http://schemas.android.com/tools"\n'
+              '    android:id="@+id/switchWidget"\n'
+              '    android:layout_width="wrap_content"\n'
+              '    android:layout_height="wrap_content"\n'
+              '    app:thumbTint="@color/jc_switch_thumb"\n'
+              '    app:trackTint="@color/jc_switch_track"\n'
+              '    tools:targetApi="n" />\n', encoding="utf-8")
+
           print("customization done")
           PY
 
