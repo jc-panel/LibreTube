@@ -245,8 +245,11 @@ jobs:
               '    var backgroundColor = ThemeHelper.getThemeColor(\n        context,\n        com.google.android.material.R.attr.colorPrimaryVariant\n    )',
               '    var backgroundColor = Color.RED', 1))
 
-          # 19. onglet du bas selectionne en blanc, sans pastille grise
-          open("app/src/main/res/color/jc_nav_tint.xml", "w").write('<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n    <item android:color="#FFFFFF" android:state_checked="true" />\n    <item android:color="#9E9E9E" />\n</selector>\n')
+          # 19. onglet du bas selectionne visible, sans pastille grise (noir en clair, blanc en sombre)
+          (res / "color").mkdir(parents=True, exist_ok=True)
+          (res / "color-night").mkdir(parents=True, exist_ok=True)
+          open("app/src/main/res/color/jc_nav_tint.xml", "w").write('<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n    <item android:color="#000000" android:state_checked="true" />\n    <item android:color="#9E9E9E" />\n</selector>\n')
+          open("app/src/main/res/color-night/jc_nav_tint.xml", "w").write('<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n    <item android:color="#FFFFFF" android:state_checked="true" />\n    <item android:color="#9E9E9E" />\n</selector>\n')
           edit("app/src/main/res/values/style.xml", lambda s: s.replace(
               '</resources>',
               '    <style name="JcNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">\n        <item name="android:color">@android:color/transparent</item>\n    </style>\n</resources>', 1))
