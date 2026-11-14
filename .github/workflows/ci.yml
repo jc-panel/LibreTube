@@ -162,6 +162,15 @@ jobs:
                lambda s: s.replace(
                    "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date)",
                    "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date) + \"   ...plus\""))
+          # le "...plus" doit survivre au repli/depli (toggleDescription reecrit la ligne)
+          edit("app/src/main/java/com/github/libretube/ui/views/DescriptionLayout.kt",
+               lambda s: s.replace(
+                   'context.getString(R.string.normal_views, streams.views.formatShort(),  TextUtils.SEPARATOR + formattedDate)',
+                   'context.getString(R.string.normal_views, streams.views.formatShort(),  TextUtils.SEPARATOR + formattedDate) + "   ...plus"'))
+          edit("app/src/main/java/com/github/libretube/ui/views/DescriptionLayout.kt",
+               lambda s: s.replace(
+                   'context.getString(R.string.normal_views, "%,d".format(streams.views),  TextUtils.SEPARATOR + formattedDate)',
+                   'context.getString(R.string.normal_views, "%,d".format(streams.views),  TextUtils.SEPARATOR + formattedDate) + "   ...moins"'))
 
           # 13. suggestions en colonne (haut->bas) + boutons bulles sombres texte blanc (facon YouTube)
           edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt",
