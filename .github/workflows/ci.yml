@@ -186,7 +186,7 @@ jobs:
           # ScrollView simple bride une RecyclerView wrap_content verticale -> NestedScrollView affiche toutes les suggestions
           edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
               '<ScrollView\n        android:id="@+id/player_scrollView"',
-              '<androidx.core.widget.NestedScrollView\n        android:id="@+id/player_scrollView"\n        android:fillViewport="true"\n        android:nestedScrollingEnabled="false"').replace(
+              '<androidx.core.widget.NestedScrollView\n        android:id="@+id/player_scrollView"\n        android:fillViewport="true"').replace(
               '</ScrollView>', '</androidx.core.widget.NestedScrollView>'))
           edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
               '<androidx.recyclerview.widget.RecyclerView\n                android:id="@+id/related_rec_view"\n                android:layout_width="wrap_content"\n                android:layout_height="wrap_content" />',
@@ -197,6 +197,10 @@ jobs:
           edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
               'android:id="@+id/player_subscribe"\n                    android:layout_width="wrap_content"\n                    android:layout_height="wrap_content"\n                    android:layout_gravity="center"\n                    android:text="@string/subscribe"\n                    android:textSize="12sp" />',
               'android:id="@+id/player_subscribe"\n                    android:layout_width="wrap_content"\n                    android:layout_height="wrap_content"\n                    android:layout_gravity="center"\n                    android:textColor="#FFFFFF"\n                    app:backgroundTint="#272727"\n                    android:text="@string/subscribe"\n                    android:textSize="12sp" />'))
+          # nestedScrollingEnabled ne peut PAS etre mis en XML sur NestedScrollView (NPE a l'inflation) -> en Kotlin
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt", lambda s: s.replace(
+              "        binding.relPlayerSave.setOnClickListener {",
+              "        binding.playerScrollView.isNestedScrollingEnabled = false\n        binding.relPlayerSave.setOnClickListener {", 1))
 
           print("customization done")
           PY
