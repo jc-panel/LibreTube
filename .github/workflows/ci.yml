@@ -71,20 +71,21 @@ jobs:
           assert count > 0
           print("strings updated:", count)
 
-          # 4. launcher icon = image fournie, plein cadre (non-adaptatif, bords non rognes)
+          # 4. launcher icon = bouton fourni, icone adaptative (fond blanc + bouton dans la zone sure)
           from PIL import Image
           res = root / "app/src/main/res"
-          src_icon = Image.open(root / "jc_icon.png").convert("RGBA")
+          fg = Image.open(root / "jc_fg.png").convert("RGBA")
+          legacy = Image.open(root / "jc_legacy.png").convert("RGBA")
           for name, size in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
               folder = res / ("mipmap-" + name)
               folder.mkdir(parents=True, exist_ok=True)
-              im = src_icon.resize((size, size), Image.LANCZOS)
-              im.save(folder / "ic_launcher.png")
-              im.save(folder / "ic_launcher_round.png")
+              fg.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher_foreground.png")
+              legacy.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher.png")
+              legacy.resize((size, size), Image.LANCZOS).save(folder / "ic_launcher_round.png")
+          (res / "values/jc_icon_bg.xml").write_text('<?xml version="1.0" encoding="utf-8"?>\n<resources><color name="jc_icon_bg">#FFFFFF</color></resources>\n', encoding="utf-8")
+          adaptive = '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n  <background android:drawable="@color/jc_icon_bg" />\n  <foreground android:drawable="@mipmap/ic_launcher_foreground" />\n</adaptive-icon>\n'
           for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
-              p = res / "mipmap-anydpi-v26" / name
-              if p.exists():
-                  p.unlink()
+              (res / "mipmap-anydpi-v26" / name).write_text(adaptive, encoding="utf-8")
 
           # 5. no update check against the upstream project
           edit("app/src/main/java/com/github/libretube/ui/preferences/MainSettings.kt",
@@ -106,7 +107,7 @@ jobs:
           edit("app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt",
                lambda s: s.replace(
                    "binding.toolbar.title = ThemeHelper.getStyledAppName(this)",
-                   "binding.toolbar.title = null\n        binding.toolbar.logo = androidx.core.content.ContextCompat.getDrawable(this, com.github.libretube.R.mipmap.ic_launcher)"))
+                   "binding.toolbar.title = null\n        binding.toolbar.logo = androidx.core.content.ContextCompat.getDrawable(this, com.github.libretube.R.mipmap.ic_launcher_foreground)"))
 
           print("customization done")
           PY
