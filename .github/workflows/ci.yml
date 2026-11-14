@@ -24,6 +24,9 @@ jobs:
           distribution: "temurin"
           cache: "gradle"
 
+      - name: Pillow
+        run: python3 -m pip install --quiet pillow
+
       # Name, icon and settings of the TubePlus edition are applied here, on top of the source code.
       - name: Customize
         run: |
@@ -68,47 +71,20 @@ jobs:
           assert count > 0
           print("strings updated:", count)
 
-          # 4. launcher icon
+          # 4. launcher icon = image fournie, plein cadre (non-adaptatif, bords non rognes)
+          from PIL import Image
           res = root / "app/src/main/res"
-          (res / "drawable/jc_icon_foreground.xml").write_text('''<?xml version="1.0" encoding="utf-8"?>
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:aapt="http://schemas.android.com/aapt"
-              android:width="108dp"
-              android:height="108dp"
-              android:viewportWidth="108"
-              android:viewportHeight="108">
-              <path
-                  android:fillType="evenOdd"
-                  android:pathData="M54,28 A26,26 0 1,1 54,80 A26,26 0 1,1 54,28 Z M54,34 A20,20 0 1,0 54,74 A20,20 0 1,0 54,34 Z">
-                  <aapt:attr name="android:fillColor">
-                      <gradient
-                          android:type="linear"
-                          android:startX="32"
-                          android:startY="32"
-                          android:endX="76"
-                          android:endY="76"
-                          android:startColor="#3B82F6"
-                          android:endColor="#EF4444" />
-                  </aapt:attr>
-              </path>
-              <path
-                  android:fillColor="#FFFFFF"
-                  android:pathData="M48,43 L48,65 L66,54 Z" />
-          </vector>
-          ''', encoding="utf-8")
-          (res / "values/jc_icon_colors.xml").write_text('''<?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <color name="jc_icon_background">#0B1220</color>
-          </resources>
-          ''', encoding="utf-8")
-          icon = '''<?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/jc_icon_background" />
-              <foreground android:drawable="@drawable/jc_icon_foreground" />
-          </adaptive-icon>
-          '''
+          src_icon = Image.open(root / "jc_icon.png").convert("RGBA")
+          for name, size in {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}.items():
+              folder = res / ("mipmap-" + name)
+              folder.mkdir(parents=True, exist_ok=True)
+              im = src_icon.resize((size, size), Image.LANCZOS)
+              im.save(folder / "ic_launcher.png")
+              im.save(folder / "ic_launcher_round.png")
           for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
-              (res / "mipmap-anydpi-v26" / name).write_text(icon, encoding="utf-8")
+              p = res / "mipmap-anydpi-v26" / name
+              if p.exists():
+                  p.unlink()
 
           # 5. no update check against the upstream project
           edit("app/src/main/java/com/github/libretube/ui/preferences/MainSettings.kt",
