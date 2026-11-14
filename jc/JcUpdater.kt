@@ -34,12 +34,16 @@ object JcUpdater {
     }
 
     private fun prompt(activity: Activity) {
-        AlertDialog.Builder(activity)
+        val dialog = AlertDialog.Builder(activity)
             .setTitle("Nouvelle version disponible")
-            .setMessage("Une mise a jour de TubePlus est prete. L'installer maintenant ?")
+            .setMessage("Une mise a jour de DarkTube est prete. L'installer maintenant ?")
             .setPositiveButton("Installer") { _, _ -> download(activity) }
             .setNegativeButton("Plus tard", null)
             .show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            ?.setTextColor(android.graphics.Color.parseColor("#EB1419"))
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            ?.setTextColor(android.graphics.Color.WHITE)
     }
 
     private fun download(activity: Activity) {
