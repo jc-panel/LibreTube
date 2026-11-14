@@ -173,6 +173,17 @@ jobs:
                    '<item name="android:textColor">?colorPrimary</item>\n        <item name="iconTint">?colorPrimary</item>',
                    '<item name="android:textColor">#FFFFFF</item>\n        <item name="iconTint">#FFFFFF</item>\n        <item name="backgroundTint">#272727</item>'))
 
+          # 14. corrections : suggestions verticales lisibles + Se desabonner / Commentaires non bleus
+          edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
+              '<androidx.recyclerview.widget.RecyclerView\n                android:id="@+id/related_rec_view"\n                android:layout_width="wrap_content"\n                android:layout_height="wrap_content" />',
+              '<androidx.recyclerview.widget.RecyclerView\n                android:id="@+id/related_rec_view"\n                android:layout_width="match_parent"\n                android:layout_height="wrap_content"\n                android:nestedScrollingEnabled="false" />'))
+          edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
+              'android:textColor="?colorPrimary"\n                app:drawableEndCompat="@drawable/ic_arrow_up_down"\n                app:drawableTint="?colorPrimary" />',
+              'android:textColor="#FFFFFF"\n                app:drawableEndCompat="@drawable/ic_arrow_up_down"\n                app:drawableTint="#FFFFFF" />'))
+          edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
+              'android:id="@+id/player_subscribe"\n                    android:layout_width="wrap_content"\n                    android:layout_height="wrap_content"\n                    android:layout_gravity="center"\n                    android:text="@string/subscribe"\n                    android:textSize="12sp" />',
+              'android:id="@+id/player_subscribe"\n                    android:layout_width="wrap_content"\n                    android:layout_height="wrap_content"\n                    android:layout_gravity="center"\n                    android:textColor="#FFFFFF"\n                    app:backgroundTint="#272727"\n                    android:text="@string/subscribe"\n                    android:textSize="12sp" />'))
+
           print("customization done")
           PY
 
