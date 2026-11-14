@@ -163,6 +163,16 @@ jobs:
                    "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date)",
                    "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date) + \"   ...plus\""))
 
+          # 13. suggestions en colonne (haut->bas) + boutons bulles sombres texte blanc (facon YouTube)
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt",
+               lambda s: s.replace(
+                   "if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {\n                LinearLayoutManager.HORIZONTAL\n            } else {\n                LinearLayoutManager.VERTICAL\n            },",
+                   "LinearLayoutManager.VERTICAL,"))
+          edit("app/src/main/res/values/style.xml",
+               lambda s: s.replace(
+                   '<item name="android:textColor">?colorPrimary</item>\n        <item name="iconTint">?colorPrimary</item>',
+                   '<item name="android:textColor">#FFFFFF</item>\n        <item name="iconTint">#FFFFFF</item>\n        <item name="backgroundTint">#272727</item>'))
+
           print("customization done")
           PY
 
