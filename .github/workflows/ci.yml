@@ -334,6 +334,12 @@ jobs:
                   '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>',
                   '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>\n        <item name="circularProgressIndicatorStyle">@style/JcSpinner</item>', 1))
 
+          # 26. correctif : lecteur parfois coince en mini au lancement
+          # transitionToStart() lance avant la mesure de la vue -> differer d'une frame
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt", lambda s: s.replace(
+              "        binding.playerMotionLayout.progress = 1F\n        binding.playerMotionLayout.transitionToStart()",
+              "        binding.playerMotionLayout.progress = 1F\n        binding.playerMotionLayout.post { binding.playerMotionLayout.transitionToStart() }", 1))
+
           print("customization done")
           PY
 
