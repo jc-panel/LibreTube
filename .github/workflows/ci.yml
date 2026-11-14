@@ -122,6 +122,10 @@ jobs:
           edit("app/src/main/res/layout/fragment_home.xml",
                lambda s: s.replace('app:spanCount="2"', 'app:spanCount="1"'))
 
+          # 7. Barre du bas facon YouTube : libelles toujours visibles sous les icones
+          edit("app/src/main/res/layout/activity_main.xml",
+               lambda s: s.replace('app:labelVisibilityMode="selected"', 'app:labelVisibilityMode="labeled"'))
+
           print("customization done")
           PY
 
