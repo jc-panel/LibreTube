@@ -33,6 +33,20 @@ jobs:
           python3 - <<'PY'
           import re, pathlib
 
+          # ============================================================
+          # TubePlus - personnalisation appliquee par-dessus LibreTube.
+          # Chaque bloc est independant ; l'ordre compte uniquement quand
+          # deux blocs editent le meme fichier (ex: 7 avant 19).
+          # Groupes :
+          #   Identite      1 2 3        (id, nom, textes)
+          #   Icone         4            (logo sur fond blanc)
+          #   Mises a jour  5 9          (pas de check amont, updater integre)
+          #   Accueil/Nav   6 7 8 19     (feed 1 colonne, barre du bas blanche)
+          #   Theme         10 11 16     (noir pur, ecran compte cache, accent)
+          #   Lecteur       12 13 14 15  (layout YouTube, suggestions, PiP)
+          #   Couleurs      17 18 20     (barres rouges, textes blancs)
+          # Audit : les 26 points de controle passent (voir historique chat).
+          # ============================================================
           APP_NAME = "TubePlus"
           APP_ID = "com.jcpanel.tubeplus"
           root = pathlib.Path(".")
