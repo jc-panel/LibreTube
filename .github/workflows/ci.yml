@@ -135,6 +135,12 @@ jobs:
               return s
           edit("app/src/main/AndroidManifest.xml", _manifest)
 
+          # 10. fond noir facon YouTube : theme "pur" (noir pur en mode sombre) active par defaut
+          edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt",
+               lambda s: s.replace("PreferenceKeys.PURE_THEME,\n            false", "PreferenceKeys.PURE_THEME,\n            true"))
+          edit("app/src/main/res/xml/appearance_settings.xml",
+               lambda s: s.replace('app:key="pure_theme"', 'app:defaultValue="true"\n            app:key="pure_theme"'))
+
           print("customization done")
           PY
 
