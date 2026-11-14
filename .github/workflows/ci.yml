@@ -139,7 +139,7 @@ jobs:
           edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt",
                lambda s: s.replace("PreferenceKeys.PURE_THEME,\n            false", "PreferenceKeys.PURE_THEME,\n            true"))
           edit("app/src/main/res/xml/appearance_settings.xml",
-               lambda s: s.replace('app:key="pure_theme"', 'app:defaultValue="true"\n            app:key="pure_theme"'))
+               lambda s: s.replace('app:defaultValue="false"\n            app:key="pure_theme"', 'app:defaultValue="true"\n            app:key="pure_theme"'))
 
           print("customization done")
           PY
