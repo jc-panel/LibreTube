@@ -207,6 +207,11 @@ jobs:
               "val intent = Intent(Intent.ACTION_VIEW, uri)\n\n            // start PiP mode if enabled",
               "val intent = Intent(Intent.ACTION_VIEW, uri)\n                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)\n\n            // start PiP mode if enabled", 1))
 
+          # 16. forcer l'accent rouge YouTube (barre de progression, onglets, spinner de chargement)
+          edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt", lambda s: s.replace(
+              '        var accentColor = PreferenceHelper.getString(PreferenceKeys.ACCENT_COLOR, "")\n        if (accentColor.isEmpty()) {\n            accentColor = if (DynamicColors.isDynamicColorAvailable()) "my" else "blue"\n            PreferenceHelper.putString(PreferenceKeys.ACCENT_COLOR, accentColor)\n        }',
+              '        val accentColor = "red"', 1))
+
           print("customization done")
           PY
 
