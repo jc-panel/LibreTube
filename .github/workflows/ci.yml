@@ -278,6 +278,26 @@ jobs:
               '        menu.add(Menu.NONE, Menu.NONE, 999, "Mon abonnement").setOnMenuItemClickListener {\n            com.github.libretube.jc.LicenseManager.showInfo(this)\n            true\n        }',
               '        menu.findItem(R.id.action_help)?.isVisible = false\n        menu.findItem(R.id.action_donate)?.isVisible = false\n        menu.findItem(R.id.action_about)?.isVisible = false\n        menu.add(Menu.NONE, Menu.NONE, 999, "Mon abonnement").apply {\n            setIcon(R.drawable.ic_badge)\n            setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)\n        }.setOnMenuItemClickListener {\n            com.github.libretube.jc.LicenseManager.showInfo(this)\n            true\n        }', 1))
 
+          # 23. ecran de demarrage (splash) : triangle rouge DarkTube sur fond noir
+          (res / "drawable").mkdir(parents=True, exist_ok=True)
+          (res / "drawable/splash_icon.xml").write_text(
+              '<?xml version="1.0" encoding="utf-8"?>\n'
+              '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
+              '    android:width="108dp"\n'
+              '    android:height="108dp"\n'
+              '    android:viewportWidth="1280"\n'
+              '    android:viewportHeight="1280">\n'
+              '    <path\n'
+              '        android:fillColor="#EB1419"\n'
+              '        android:strokeColor="#EB1419"\n'
+              '        android:strokeWidth="70"\n'
+              '        android:strokeLineJoin="round"\n'
+              '        android:pathData="M470,430 L470,850 L870,640 Z" />\n'
+              '</vector>\n', encoding="utf-8")
+          edit("app/src/main/res/values/themes.xml", lambda s: s.replace(
+              '<item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>',
+              '<item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>\n        <item name="windowSplashScreenBackground">#000000</item>', 1))
+
           print("customization done")
           PY
 
