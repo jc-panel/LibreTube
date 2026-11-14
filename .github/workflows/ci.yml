@@ -283,27 +283,38 @@ jobs:
           (res / "drawable/splash_icon.xml").write_text(
               '<?xml version="1.0" encoding="utf-8"?>\n'
               '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
-              '    android:width="108dp"\n'
-              '    android:height="108dp"\n'
+              '    android:width="64dp"\n'
+              '    android:height="64dp"\n'
               '    android:viewportWidth="1280"\n'
               '    android:viewportHeight="1280">\n'
-              '    <path\n'
-              '        android:fillColor="#EB1419"\n'
-              '        android:strokeColor="#EB1419"\n'
-              '        android:strokeWidth="70"\n'
-              '        android:strokeLineJoin="round"\n'
-              '        android:pathData="M470,430 L470,850 L870,640 Z" />\n'
+              '    <group\n'
+              '        android:name="scaleGroup"\n'
+              '        android:scaleX="0.5"\n'
+              '        android:scaleY="0.5"\n'
+              '        android:pivotX="640"\n'
+              '        android:pivotY="640">\n'
+              '        <path\n'
+              '            android:fillColor="#EB1419"\n'
+              '            android:strokeColor="#EB1419"\n'
+              '            android:strokeWidth="70"\n'
+              '            android:strokeLineJoin="round"\n'
+              '            android:pathData="M520,400 L520,880 L920,640 Z" />\n'
+              '    </group>\n'
               '</vector>\n', encoding="utf-8")
           edit("app/src/main/res/values/themes.xml", lambda s: s.replace(
               '<item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>',
               '<item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>\n        <item name="windowSplashScreenBackground">#000000</item>', 1))
 
           # 24. spinners de chargement en rouge (tous les LoadingIndicator via le style du theme)
+          # le style JcLoadingIndicator est defini ici (values) et reference aussi par le theme sombre (values-night)
           edit("app/src/main/res/values/themes.xml", lambda s: s.replace(
               '<item name="loadingIndicatorStyle">@style/Widget.Material3.LoadingIndicator.Contained</item>',
               '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>', 1).replace(
               '</resources>',
               '    <style name="JcLoadingIndicator" parent="Widget.Material3.LoadingIndicator.Contained">\n        <item name="indicatorColor">#EB1419</item>\n        <item name="containerColor">@android:color/transparent</item>\n    </style>\n</resources>', 1))
+          edit("app/src/main/res/values-night/themes.xml", lambda s: s.replace(
+              '<item name="loadingIndicatorStyle">@style/Widget.Material3.LoadingIndicator.Contained</item>',
+              '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>', 1))
 
           print("customization done")
           PY
