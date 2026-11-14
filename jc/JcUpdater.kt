@@ -52,7 +52,7 @@ object JcUpdater {
                 c.instanceFollowRedirects = true
                 c.connectTimeout = 15000
                 c.readTimeout = 60000
-                c.inputStream.use { inp -> out.outputStream.use { inp.copyTo(it) } }
+                c.inputStream.use { inp -> out.outputStream().use { inp.copyTo(it) } }
                 c.disconnect()
                 val uri = FileProvider.getUriForFile(activity, activity.packageName + ".jcfileprovider", out)
                 val i = Intent(Intent.ACTION_VIEW)
