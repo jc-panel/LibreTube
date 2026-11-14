@@ -92,7 +92,7 @@ jobs:
               S = 512
               im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
               dr = ImageDraw.Draw(im)
-              dr.rounded_rectangle([6, 6, S - 7, S - 7], radius=112, fill=(18, 18, 18, 255), outline=(230, 0, 0, 255), width=8)
+              dr.rounded_rectangle([0, 0, S - 1, S - 1], radius=115, fill=(18, 18, 18, 255))
               red = (255, 32, 32, 255); w = 36; r = w // 2
               pts = [(205, 155), (205, 357), (372, 256)]
               for a, b in [(pts[0], pts[1]), (pts[1], pts[2]), (pts[2], pts[0])]:
