@@ -217,6 +217,11 @@ jobs:
               'app:played_color="?attr/colorSecondary"\n                app:scrubber_color="?attr/colorSecondary"',
               'app:played_color="#FFFF0000"\n                app:scrubber_color="#FFFF0000"'))
 
+          # 18. barre de reprise (watch progress) sur les miniatures en rouge YouTube
+          edit("app/src/main/res/values/style.xml", lambda s: s.replace(
+              '<item name="android:background">?colorPrimaryDark</item>',
+              '<item name="android:background">#FFFF0000</item>', 1))
+
           print("customization done")
           PY
 
