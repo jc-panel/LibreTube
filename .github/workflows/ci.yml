@@ -223,6 +223,22 @@ jobs:
               '    var backgroundColor = ThemeHelper.getThemeColor(\n        context,\n        com.google.android.material.R.attr.colorPrimaryVariant\n    )',
               '    var backgroundColor = Color.RED', 1))
 
+          # 19. onglet du bas selectionne en blanc, sans pastille grise
+          open("app/src/main/res/color/jc_nav_tint.xml", "w").write('<?xml version="1.0" encoding="utf-8"?>\n<selector xmlns:android="http://schemas.android.com/apk/res/android">\n    <item android:color="#FFFFFF" android:state_checked="true" />\n    <item android:color="#9E9E9E" />\n</selector>\n')
+          edit("app/src/main/res/values/style.xml", lambda s: s.replace(
+              '</resources>',
+              '    <style name="JcNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">\n        <item name="android:color">@android:color/transparent</item>\n    </style>\n</resources>', 1))
+          edit("app/src/main/res/layout/activity_main.xml", lambda s: s.replace(
+              'app:menu="@menu/bottom_menu"\n        app:labelVisibilityMode="selected" />',
+              'app:menu="@menu/bottom_menu"\n        app:itemIconTint="@color/jc_nav_tint"\n        app:itemTextColor="@color/jc_nav_tint"\n        app:itemActiveIndicatorStyle="@style/JcNavIndicator"\n        app:labelVisibilityMode="selected" />', 1))
+
+          # 20. boutons Historique / Telechargements : texte et icone en blanc
+          edit("app/src/main/res/layout/fragment_library.xml", lambda s: s.replace(
+              'android:id="@+id/watch_history"',
+              'android:id="@+id/watch_history"\n                        android:textColor="#FFFFFF"\n                        app:iconTint="#FFFFFF"', 1).replace(
+              'android:id="@+id/downloads"',
+              'android:id="@+id/downloads"\n                        android:textColor="#FFFFFF"\n                        app:iconTint="#FFFFFF"', 1))
+
           print("customization done")
           PY
 
