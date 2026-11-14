@@ -316,6 +316,24 @@ jobs:
               '<item name="loadingIndicatorStyle">@style/Widget.Material3.LoadingIndicator.Contained</item>',
               '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>', 1))
 
+          # 25. style du loader : rond classique qui tourne (CircularProgressIndicator) en rouge
+          import glob as _glob
+          for _lf in _glob.glob("app/src/main/res/layout/*.xml"):
+              _t = open(_lf, encoding="utf-8").read()
+              if "com.google.android.material.loadingindicator.LoadingIndicator" in _t:
+                  open(_lf, "w", encoding="utf-8").write(_t.replace(
+                      "com.google.android.material.loadingindicator.LoadingIndicator",
+                      "com.google.android.material.progressindicator.CircularProgressIndicator"))
+          edit("app/src/main/res/values/themes.xml", lambda s: s.replace(
+              '</resources>',
+              '    <style name="JcSpinner" parent="Widget.Material3.CircularProgressIndicator">\n        <item name="android:indeterminate">true</item>\n        <item name="indicatorColor">#EB1419</item>\n        <item name="trackThickness">4dp</item>\n    </style>\n</resources>', 1))
+          for _tf in ("app/src/main/res/values/themes.xml", "app/src/main/res/values-night/themes.xml"):
+              _tt = open(_tf, encoding="utf-8").read()
+              assert '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>' in _tt, _tf
+              open(_tf, "w", encoding="utf-8").write(_tt.replace(
+                  '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>',
+                  '<item name="loadingIndicatorStyle">@style/JcLoadingIndicator</item>\n        <item name="circularProgressIndicatorStyle">@style/JcSpinner</item>', 1))
+
           print("customization done")
           PY
 
