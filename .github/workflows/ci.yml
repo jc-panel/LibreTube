@@ -270,6 +270,14 @@ jobs:
               'app:defaultValue="false"\n            app:key="auto_fullscreen"',
               'app:defaultValue="true"\n            app:key="auto_fullscreen"', 1))
 
+          # 22. engrenage parametres visible en haut (au lieu des 3 points)
+          edit("app/src/main/res/menu/action_bar.xml", lambda s: s.replace(
+              '    <item\n        android:id="@+id/action_settings"\n        android:title="@string/settings"\n        app:showAsAction="never" />',
+              '    <item\n        android:id="@+id/action_settings"\n        android:icon="@drawable/ic_settings"\n        android:title="@string/settings"\n        app:showAsAction="always" />', 1))
+          edit("app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt", lambda s: s.replace(
+              '        menu.add(Menu.NONE, Menu.NONE, 999, "Mon abonnement").setOnMenuItemClickListener {\n            com.github.libretube.jc.LicenseManager.showInfo(this)\n            true\n        }',
+              '        menu.findItem(R.id.action_help)?.isVisible = false\n        menu.findItem(R.id.action_donate)?.isVisible = false\n        menu.findItem(R.id.action_about)?.isVisible = false\n        menu.add(Menu.NONE, Menu.NONE, 999, "Mon abonnement").apply {\n            setIcon(R.drawable.ic_badge)\n            setShowAsAction(android.view.MenuItem.SHOW_AS_ACTION_ALWAYS)\n        }.setOnMenuItemClickListener {\n            com.github.libretube.jc.LicenseManager.showInfo(this)\n            true\n        }', 1))
+
           print("customization done")
           PY
 
