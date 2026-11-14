@@ -141,6 +141,10 @@ jobs:
           edit("app/src/main/res/xml/appearance_settings.xml",
                lambda s: s.replace('app:defaultValue="false"\n            app:key="pure_theme"', 'app:defaultValue="true"\n            app:key="pure_theme"'))
 
+          # 11. cacher l'ecran Compte/Synchronisation (source de confusion pour les clients)
+          edit("app/src/main/res/xml/settings.xml",
+               lambda s: s.replace('    <Preference\n        android:icon="@drawable/ic_server"\n        app:key="account"\n        app:summary="@string/instance_summary"\n        app:title="@string/account" />\n\n', ''))
+
           print("customization done")
           PY
 
