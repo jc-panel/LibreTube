@@ -118,6 +118,10 @@ jobs:
           edit("app/src/main/res/xml/general_settings.xml",
                lambda s: re.sub(r'\s*<SwitchPreferenceCompat(?:(?!/>).)*?app:key="automatic_update_checks"(?:(?!/>).)*?/>', "", s, flags=re.S))
 
+          # 6. Accueil facon YouTube : feed des tendances en 1 colonne (grande vignette par ligne)
+          edit("app/src/main/res/layout/fragment_home.xml",
+               lambda s: s.replace('app:spanCount="2"', 'app:spanCount="1"'))
+
           print("customization done")
           PY
 
