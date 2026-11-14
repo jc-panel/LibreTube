@@ -183,6 +183,11 @@ jobs:
                    '<item name="android:textColor">#FFFFFF</item>\n        <item name="iconTint">#FFFFFF</item>\n        <item name="backgroundTint">#272727</item>'))
 
           # 14. corrections : suggestions verticales lisibles + Se desabonner / Commentaires non bleus
+          # ScrollView simple bride une RecyclerView wrap_content verticale -> NestedScrollView affiche toutes les suggestions
+          edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
+              '<ScrollView\n        android:id="@+id/player_scrollView"',
+              '<androidx.core.widget.NestedScrollView\n        android:id="@+id/player_scrollView"\n        android:fillViewport="true"').replace(
+              '</ScrollView>', '</androidx.core.widget.NestedScrollView>'))
           edit("app/src/main/res/layout/fragment_player.xml", lambda s: s.replace(
               '<androidx.recyclerview.widget.RecyclerView\n                android:id="@+id/related_rec_view"\n                android:layout_width="wrap_content"\n                android:layout_height="wrap_content" />',
               '<androidx.recyclerview.widget.RecyclerView\n                android:id="@+id/related_rec_view"\n                android:layout_width="match_parent"\n                android:layout_height="wrap_content"\n                android:nestedScrollingEnabled="false" />'))
