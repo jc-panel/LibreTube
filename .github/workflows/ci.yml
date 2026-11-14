@@ -145,6 +145,24 @@ jobs:
           edit("app/src/main/res/xml/settings.xml",
                lambda s: s.replace('    <Preference\n        android:icon="@drawable/ic_server"\n        app:key="account"\n        app:summary="@string/instance_summary"\n        app:title="@string/account" />\n\n', ''))
 
+          # 12. page video facon YouTube : chaine + abonnement au-dessus des boutons, + "...plus" sur la description
+          def _reorder_player(s):
+              chan_id = s.index('android:id="@+id/player_channel"')
+              chan_start = s.rindex('<LinearLayout', 0, chan_id)
+              comments = s.index('android:id="@+id/comments_toggle"')
+              block_end = s.rindex('</LinearLayout>', 0, comments) + len('</LinearLayout>')
+              channel_block = s[chan_start:block_end]
+              s2 = s[:chan_start] + s[block_end:]
+              a2 = s2.index('<HorizontalScrollView')
+              line_start = s2.rindex('\n', 0, a2) + 1
+              indent = s2[line_start:a2]
+              return s2[:line_start] + channel_block.strip() + "\n\n" + indent + s2[a2:]
+          edit("app/src/main/res/layout/fragment_player.xml", _reorder_player)
+          edit("app/src/main/java/com/github/libretube/ui/views/DescriptionLayout.kt",
+               lambda s: s.replace(
+                   "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date)",
+                   "playerViewsInfo.text = context.getString(R.string.normal_views, views, TextUtils.SEPARATOR + date) + \"   ...plus\""))
+
           print("customization done")
           PY
 
