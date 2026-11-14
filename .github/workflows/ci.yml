@@ -207,10 +207,15 @@ jobs:
               "val intent = Intent(Intent.ACTION_VIEW, uri)\n\n            // start PiP mode if enabled",
               "val intent = Intent(Intent.ACTION_VIEW, uri)\n                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)\n\n            // start PiP mode if enabled", 1))
 
-          # 16. forcer l'accent rouge YouTube (barre de progression, onglets, spinner de chargement)
+          # 16. accent monochrome (blanc) : interface coherente sans bleu (onglets, spinner, liens en blanc)
           edit("app/src/main/java/com/github/libretube/helpers/ThemeHelper.kt", lambda s: s.replace(
               '        var accentColor = PreferenceHelper.getString(PreferenceKeys.ACCENT_COLOR, "")\n        if (accentColor.isEmpty()) {\n            accentColor = if (DynamicColors.isDynamicColorAvailable()) "my" else "blue"\n            PreferenceHelper.putString(PreferenceKeys.ACCENT_COLOR, accentColor)\n        }',
-              '        val accentColor = "red"', 1))
+              '        val accentColor = "monochrome"', 1))
+
+          # 17. seule la barre de progression du lecteur en rouge YouTube
+          edit("app/src/main/res/layout/exo_styled_player_control_view.xml", lambda s: s.replace(
+              'app:played_color="?attr/colorSecondary"\n                app:scrubber_color="?attr/colorSecondary"',
+              'app:played_color="#FFFF0000"\n                app:scrubber_color="#FFFF0000"'))
 
           print("customization done")
           PY
