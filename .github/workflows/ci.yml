@@ -102,6 +102,12 @@ jobs:
           edit("app/src/main/res/layout/activity_main.xml",
                lambda s: s.replace('app:labelVisibilityMode="selected"', 'app:labelVisibilityMode="labeled"'))
 
+          # 8. logo image en haut a gauche au lieu du texte (facon YouTube)
+          edit("app/src/main/java/com/github/libretube/ui/activities/MainActivity.kt",
+               lambda s: s.replace(
+                   "binding.toolbar.title = ThemeHelper.getStyledAppName(this)",
+                   "binding.toolbar.title = null\n        binding.toolbar.logo = androidx.core.content.ContextCompat.getDrawable(this, com.github.libretube.R.mipmap.ic_launcher)"))
+
           print("customization done")
           PY
 
