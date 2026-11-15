@@ -52,12 +52,27 @@ object JcUpdater {
             try {
                 val dir = activity.externalCacheDir ?: activity.cacheDir
                 val out = File(dir, "update.apk")
-                val c = URL(APK_URL).openConnection() as HttpURLConnection
-                c.instanceFollowRedirects = true
-                c.connectTimeout = 15000
-                c.readTimeout = 60000
+                var urlStr = APK_URL
+                var redirects = 0
+                var c = URL(urlStr).openConnection() as HttpURLConnection
+                while (true) {
+                    c.instanceFollowRedirects = false
+                    c.connectTimeout = 15000
+                    c.readTimeout = 60000
+                    val code = c.responseCode
+                    if (code in 300..399) {
+                        val loc = c.getHeaderField("Location")
+                        c.disconnect()
+                        if (loc == null || redirects++ > 5) throw Exception("redirect")
+                        urlStr = loc
+                        c = URL(urlStr).openConnection() as HttpURLConnection
+                        continue
+                    }
+                    break
+                }
                 c.inputStream.use { inp -> out.outputStream().use { inp.copyTo(it) } }
                 c.disconnect()
+                if (out.length() < 100000L) throw Exception("empty")
                 val uri = FileProvider.getUriForFile(activity, activity.packageName + ".jcfileprovider", out)
                 val i = Intent(Intent.ACTION_VIEW)
                 i.setDataAndType(uri, "application/vnd.android.package-archive")
@@ -65,7 +80,7 @@ object JcUpdater {
                 activity.startActivity(i)
             } catch (e: Exception) {
                 activity.runOnUiThread {
-                    Toast.makeText(activity, "Mise a jour impossible.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Mise a jour impossible, reessayez.", Toast.LENGTH_LONG).show()
                 }
             }
         }
