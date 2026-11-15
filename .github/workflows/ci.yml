@@ -449,18 +449,16 @@ jobs:
           ls -la app/build/outputs/apk/release/
           test -f app/build/outputs/apk/release/app-release.apk
           cp app/build/outputs/apk/release/app-release.apk DarkTube.apk
-          # on garde aussi l'ancien nom pour ne pas casser la mise a jour des clients deja installes
-          cp app/build/outputs/apk/release/app-release.apk tubeplus.apk
           echo "${{ github.run_number }}" > version.txt
 
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: tubeplus
-          path: tubeplus.apk
+          name: darktube
+          path: DarkTube.apk
 
       # Publishes the APK at a fixed address:
-      # https://github.com/<owner>/<repo>/releases/latest/download/tubeplus.apk
+      # https://github.com/<owner>/<repo>/releases/latest/download/DarkTube.apk
       - name: Publish download link
         env:
           GH_TOKEN: ${{ github.token }}
@@ -468,7 +466,7 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           sleep 5
-          gh release create latest DarkTube.apk tubeplus.apk version.txt \
+          gh release create latest DarkTube.apk version.txt \
             --title "DarkTube - version ${{ github.run_number }}" \
             --notes "Version ${{ github.run_number }}" \
             --target "${{ github.sha }}" \
