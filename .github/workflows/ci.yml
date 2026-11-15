@@ -448,6 +448,8 @@ jobs:
         run: |
           ls -la app/build/outputs/apk/release/
           test -f app/build/outputs/apk/release/app-release.apk
+          cp app/build/outputs/apk/release/app-release.apk DarkTube.apk
+          # on garde aussi l'ancien nom pour ne pas casser la mise a jour des clients deja installes
           cp app/build/outputs/apk/release/app-release.apk tubeplus.apk
           echo "${{ github.run_number }}" > version.txt
 
@@ -466,7 +468,7 @@ jobs:
         run: |
           gh release delete latest --yes --cleanup-tag || true
           sleep 5
-          gh release create latest tubeplus.apk version.txt \
+          gh release create latest DarkTube.apk tubeplus.apk version.txt \
             --title "DarkTube - version ${{ github.run_number }}" \
             --notes "Version ${{ github.run_number }}" \
             --target "${{ github.sha }}" \

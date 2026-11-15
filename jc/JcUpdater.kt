@@ -13,7 +13,7 @@ import kotlin.concurrent.thread
 object JcUpdater {
     const val BUILD = __BUILD__
     private const val VERSION_URL = "https://github.com/jc-panel/LibreTube/releases/latest/download/version.txt"
-    private const val APK_URL = "https://github.com/jc-panel/LibreTube/releases/latest/download/tubeplus.apk"
+    private const val APK_URL = "https://github.com/jc-panel/LibreTube/releases/latest/download/DarkTube.apk"
 
     fun check(activity: Activity) {
         thread {
