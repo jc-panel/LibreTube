@@ -402,14 +402,11 @@ jobs:
               "        binding.playerTitleLayout.setOnClickListener {\n            toggleDescription()\n        }",
               "        binding.playerTitleLayout.setOnClickListener {\n            toggleDescription()\n        }\n        binding.playerViewsInfo.setOnClickListener {\n            toggleDescription()\n        }", 1))
 
-          # 30. plein ecran "auto" : suit l'orientation du telephone (droit -> portrait, penche -> paysage)
-          # force en dur (ignore toute valeur "ratio"/"landscape" deja enregistree)
-          edit("app/src/main/java/com/github/libretube/helpers/PlayerHelper.kt", lambda s: s.replace(
-              '        val fullscreenOrientationPref = PreferenceHelper.getString(\n            PreferenceKeys.FULLSCREEN_ORIENTATION,\n            "ratio"\n        )',
-              '        val fullscreenOrientationPref = "auto"', 1))
-          edit("app/src/main/res/xml/player_settings.xml", lambda s: s.replace(
-              'app:defaultValue="ratio"\n            app:entries="@array/fullscreenOrientation"',
-              'app:defaultValue="auto"\n            app:entries="@array/fullscreenOrientation"', 1))
+          # 30. plein ecran : video verticale -> portrait plein ecran ; normale -> suit l'orientation
+          # updateFullscreenOrientation sortait tot quand autoFullscreen=true -> une verticale partait en paysage
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt", lambda s: s.replace(
+              "    private fun updateFullscreenOrientation() {\n        if (PlayerHelper.autoFullscreenEnabled || !this::streams.isInitialized) return\n\n        baseActivity.requestedOrientation = PlayerHelper.getFullscreenOrientation(streams.isShort)\n    }",
+              "    private fun updateFullscreenOrientation() {\n        if (!this::streams.isInitialized) return\n\n        val jcVertical = streams.isShort || (this::playerController.isInitialized &&\n            playerController.videoSize.height > playerController.videoSize.width)\n        baseActivity.requestedOrientation = when {\n            jcVertical -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT\n            PlayerHelper.autoFullscreenEnabled -> ActivityInfo.SCREEN_ORIENTATION_SENSOR\n            else -> PlayerHelper.getFullscreenOrientation(streams.isShort)\n        }\n    }", 1))
 
           print("customization done")
           PY
