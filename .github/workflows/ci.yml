@@ -403,9 +403,10 @@ jobs:
               "        binding.playerTitleLayout.setOnClickListener {\n            toggleDescription()\n        }\n        binding.playerViewsInfo.setOnClickListener {\n            toggleDescription()\n        }", 1))
 
           # 30. plein ecran "auto" : suit l'orientation du telephone (droit -> portrait, penche -> paysage)
+          # force en dur (ignore toute valeur "ratio"/"landscape" deja enregistree)
           edit("app/src/main/java/com/github/libretube/helpers/PlayerHelper.kt", lambda s: s.replace(
-              'PreferenceKeys.FULLSCREEN_ORIENTATION,\n            "ratio"',
-              'PreferenceKeys.FULLSCREEN_ORIENTATION,\n            "auto"', 1))
+              '        val fullscreenOrientationPref = PreferenceHelper.getString(\n            PreferenceKeys.FULLSCREEN_ORIENTATION,\n            "ratio"\n        )',
+              '        val fullscreenOrientationPref = "auto"', 1))
           edit("app/src/main/res/xml/player_settings.xml", lambda s: s.replace(
               'app:defaultValue="ratio"\n            app:entries="@array/fullscreenOrientation"',
               'app:defaultValue="auto"\n            app:entries="@array/fullscreenOrientation"', 1))
