@@ -416,6 +416,12 @@ jobs:
               "        if (binding.playerMotionLayout.progress == 0f && PlayerHelper.autoFullscreenShortsEnabled && streams.isShort) {\n            setFullscreen()\n        }",
               "        val jcIsVertical = streams.isShort || (this::playerController.isInitialized &&\n            playerController.videoSize.height > playerController.videoSize.width && playerController.videoSize.width > 0)\n        if (binding.playerMotionLayout.progress == 0f && PlayerHelper.autoFullscreenShortsEnabled && jcIsVertical) {\n            setFullscreen()\n        }", 1))
 
+          # 32. Responsive : nombre de colonnes calcule sur la largeur reelle de l'ecran
+          #     (se recalcule a chaque changement : rotation, pliage, ecran partage)
+          edit("app/src/main/java/com/github/libretube/ui/base/DynamicLayoutManagerFragment.kt", lambda s: s.replace(
+              "    private fun getGridItemsCount(orientation: Int): Int {\n        val (prefKey, defaultValueRes) = when (orientation) {\n            Configuration.ORIENTATION_PORTRAIT -> PreferenceKeys.GRID_COLUMNS_PORTRAIT to R.integer.grid_items\n            else -> PreferenceKeys.GRID_COLUMNS_LANDSCAPE to R.integer.grid_items_landscape\n        }\n\n        val defaultValue = resources.getInteger(defaultValueRes).toString()\n        return PreferenceHelper.getString(prefKey, defaultValue).toInt()\n    }",
+              "    private fun getGridItemsCount(orientation: Int): Int {\n        val prefKey = if (orientation == Configuration.ORIENTATION_PORTRAIT) {\n            PreferenceKeys.GRID_COLUMNS_PORTRAIT\n        } else {\n            PreferenceKeys.GRID_COLUMNS_LANDSCAPE\n        }\n\n        val manual = PreferenceHelper.getString(prefKey, \"\")\n        if (manual.isNotEmpty()) return manual.toIntOrNull()?.coerceAtLeast(1) ?: 1\n\n        val widthDp = resources.configuration.screenWidthDp\n        return (widthDp / 260).coerceAtLeast(1)\n    }", 1))
+
           print("customization done")
           PY
 
