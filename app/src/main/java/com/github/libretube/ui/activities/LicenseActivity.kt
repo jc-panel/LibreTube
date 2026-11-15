@@ -55,13 +55,11 @@ class LicenseActivity : BaseActivity() {
         }
 
         codeInput = EditText(this).apply {
-            hint = "XXXX-XXXX-XXXX"
+            hint = "123456"
             textSize = 20f
             gravity = Gravity.CENTER
             isSingleLine = true
-            inputType = InputType.TYPE_CLASS_TEXT or
-                InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            inputType = InputType.TYPE_CLASS_NUMBER
         }
 
         submitButton = Button(this).apply {

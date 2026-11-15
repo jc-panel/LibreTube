@@ -113,13 +113,8 @@ class MainActivity : AbstractPlayerHostActivity() {
         // access code check: opens the activation screen when no valid code is stored
         if (!com.github.libretube.jc.LicenseManager.guard(this)) return
 
-        // show welcome activity on first app startup (or after the update to prospectively v32)
-        if (!PreferenceHelper.getBoolean(PreferenceKeys.WELCOME_ACTIVITY_FINISHED, false)) {
-            val welcomeIntent = Intent(this, WelcomeActivity::class.java)
-            startActivity(welcomeIntent)
-            finish()
-            return
-        }
+        // edition revendeur : onboarding desactive, mode hors-ligne (NONE) par defaut
+        PreferenceHelper.putBoolean(PreferenceKeys.WELCOME_ACTIVITY_FINISHED, true)
 
         // show noInternet Activity if no internet available on app startup
         if (!NetworkHelper.isNetworkAvailable(this)) {
