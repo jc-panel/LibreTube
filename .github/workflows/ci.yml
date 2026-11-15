@@ -408,6 +408,14 @@ jobs:
               "    private fun updateFullscreenOrientation() {\n        if (PlayerHelper.autoFullscreenEnabled || !this::streams.isInitialized) return\n\n        baseActivity.requestedOrientation = PlayerHelper.getFullscreenOrientation(streams.isShort)\n    }",
               "    private fun updateFullscreenOrientation() {\n        if (!this::streams.isInitialized) return\n\n        val jcVertical = streams.isShort || (this::playerController.isInitialized &&\n            playerController.videoSize.height > playerController.videoSize.width)\n        baseActivity.requestedOrientation = when {\n            jcVertical -> ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT\n            PlayerHelper.autoFullscreenEnabled -> ActivityInfo.SCREEN_ORIENTATION_SENSOR\n            else -> PlayerHelper.getFullscreenOrientation(streams.isShort)\n        }\n    }", 1))
 
+          # 31. videos verticales en plein ecran immersif automatique (comme les Shorts YouTube)
+          edit("app/src/main/java/com/github/libretube/helpers/PlayerHelper.kt", lambda s: s.replace(
+              "    val autoFullscreenShortsEnabled: Boolean\n        get() = PreferenceHelper.getBoolean(\n            PreferenceKeys.AUTO_FULLSCREEN_SHORTS,\n            false\n        )",
+              "    val autoFullscreenShortsEnabled: Boolean\n        get() = true", 1))
+          edit("app/src/main/java/com/github/libretube/ui/fragments/PlayerFragment.kt", lambda s: s.replace(
+              "        if (binding.playerMotionLayout.progress == 0f && PlayerHelper.autoFullscreenShortsEnabled && streams.isShort) {\n            setFullscreen()\n        }",
+              "        val jcIsVertical = streams.isShort || (this::playerController.isInitialized &&\n            playerController.videoSize.height > playerController.videoSize.width && playerController.videoSize.width > 0)\n        if (binding.playerMotionLayout.progress == 0f && PlayerHelper.autoFullscreenShortsEnabled && jcIsVertical) {\n            setFullscreen()\n        }", 1))
+
           print("customization done")
           PY
 
